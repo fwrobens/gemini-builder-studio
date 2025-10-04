@@ -1,13 +1,17 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
 };
 
-serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+Deno.serve(async (req: Request) => {
+  if (req.method === "OPTIONS") {
+    return new Response(null, {
+      status: 200,
+      headers: corsHeaders,
+    });
   }
 
   try {
@@ -50,15 +54,17 @@ serve(async (req) => {
 **REQUIRED FILE STRUCTURE:**
 1. package.json - MUST include:
    - "type": "module"
+   - Scripts: "dev": "vite", "build": "vite build", "preview": "vite preview"
    - Dependencies: react, react-dom, lucide-react
-   - DevDependencies: @vitejs/plugin-react, typescript, tailwindcss, vite
+   - DevDependencies: @vitejs/plugin-react, typescript, tailwindcss, autoprefixer, postcss, vite
 2. index.html - Entry point with <div id="root"></div>
 3. src/main.tsx - React entry (ReactDOM.createRoot)
 4. src/App.tsx - Main component
 5. Additional .tsx components as needed
 6. vite.config.ts - Vite configuration
 7. tailwind.config.js - Tailwind configuration
-8. tsconfig.json - TypeScript configuration
+8. postcss.config.js - PostCSS configuration
+9. tsconfig.json - TypeScript configuration
 
 **USER REQUEST:** "${prompt}"
 
@@ -68,7 +74,7 @@ Return ONLY valid JSON with NO markdown, NO code blocks:
   "files": [
     {
       "path": "package.json",
-      "content": "{\\"name\\":\\"app\\",\\"type\\":\\"module\\",\\"dependencies\\":{\\"react\\":\\"^18.3.1\\",\\"react-dom\\":\\"^18.3.1\\",\\"lucide-react\\":\\"latest\\"},\\"devDependencies\\":{\\"@vitejs/plugin-react\\":\\"latest\\",\\"typescript\\":\\"latest\\",\\"tailwindcss\\":\\"latest\\",\\"vite\\":\\"latest\\"}}"
+      "content": "{\\"name\\":\\"app\\",\\"type\\":\\"module\\",\\"scripts\\":{\\"dev\\":\\"vite\\",\\"build\\":\\"vite build\\",\\"preview\\":\\"vite preview\\"},\\"dependencies\\":{\\"react\\":\\"^18.3.1\\",\\"react-dom\\":\\"^18.3.1\\",\\"lucide-react\\":\\"latest\\"},\\"devDependencies\\":{\\"@vitejs/plugin-react\\":\\"latest\\",\\"typescript\\":\\"latest\\",\\"tailwindcss\\":\\"latest\\",\\"autoprefixer\\":\\"latest\\",\\"postcss\\":\\"latest\\",\\"vite\\":\\"latest\\"}}"
     },
     {
       "path": "index.html",
@@ -93,6 +99,10 @@ Return ONLY valid JSON with NO markdown, NO code blocks:
     {
       "path": "tailwind.config.js",
       "content": "export default {\\n  content: ['./index.html','./src/**/*.{js,ts,jsx,tsx}'],\\n  theme: { extend: {} },\\n  plugins: []\\n}"
+    },
+    {
+      "path": "postcss.config.js",
+      "content": "export default {\\n  plugins: {\\n    tailwindcss: {},\\n    autoprefixer: {}\\n  }\\n}"
     },
     {
       "path": "tsconfig.json",
@@ -140,19 +150,19 @@ Return ONLY valid JSON with NO markdown, NO code blocks:
     console.log('Successfully parsed response');
 
     return new Response(JSON.stringify(result), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
 
   } catch (error) {
-    console.error('Error in generate-code function:', error);
+    console.error("Error in generate-code function:", error);
     return new Response(
-      JSON.stringify({ 
-        error: error instanceof Error ? error.message : 'Unknown error',
+      JSON.stringify({
+        error: error instanceof Error ? error.message : "Unknown error",
         details: error instanceof Error ? error.stack : undefined
       }),
       {
         status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
       }
     );
   }
