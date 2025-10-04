@@ -29,35 +29,78 @@ serve(async (req) => {
         body: JSON.stringify({
           contents: [{
             parts: [{
-              text: `You are an expert web developer. Generate complete, production-ready code based on this request: "${prompt}"
+              text: `You are an expert React + TypeScript developer. Generate complete, production-ready code using ONLY these technologies:
 
-IMPORTANT RULES:
-1. Return ONLY valid JSON in this exact format:
+**REQUIRED STACK:**
+- React 18+ (functional components with hooks)
+- TypeScript (with proper types and interfaces)
+- Vite (as build tool)
+- Tailwind CSS (utility-first styling - use Tailwind classes ONLY)
+- Lucide React (for all icons - import from 'lucide-react')
+
+**CODING STANDARDS:**
+1. Use ONLY functional components with TypeScript
+2. Use Tailwind utility classes for ALL styling (NO inline styles, NO style tags)
+3. Import icons from 'lucide-react' (e.g., import { Home, User } from 'lucide-react')
+4. Include proper TypeScript types and interfaces
+5. Use modern React patterns (useState, useEffect, custom hooks)
+6. Make fully responsive layouts with Tailwind breakpoints (sm:, md:, lg:, xl:)
+7. Use Tailwind color utilities (bg-slate-900, text-white, etc.)
+
+**REQUIRED FILE STRUCTURE:**
+1. package.json - MUST include:
+   - "type": "module"
+   - Dependencies: react, react-dom, lucide-react
+   - DevDependencies: @vitejs/plugin-react, typescript, tailwindcss, vite
+2. index.html - Entry point with <div id="root"></div>
+3. src/main.tsx - React entry (ReactDOM.createRoot)
+4. src/App.tsx - Main component
+5. Additional .tsx components as needed
+6. vite.config.ts - Vite configuration
+7. tailwind.config.js - Tailwind configuration
+8. tsconfig.json - TypeScript configuration
+
+**USER REQUEST:** "${prompt}"
+
+**RESPONSE FORMAT (CRITICAL):**
+Return ONLY valid JSON with NO markdown, NO code blocks:
 {
   "files": [
     {
+      "path": "package.json",
+      "content": "{\\"name\\":\\"app\\",\\"type\\":\\"module\\",\\"dependencies\\":{\\"react\\":\\"^18.3.1\\",\\"react-dom\\":\\"^18.3.1\\",\\"lucide-react\\":\\"latest\\"},\\"devDependencies\\":{\\"@vitejs/plugin-react\\":\\"latest\\",\\"typescript\\":\\"latest\\",\\"tailwindcss\\":\\"latest\\",\\"vite\\":\\"latest\\"}}"
+    },
+    {
       "path": "index.html",
-      "content": "<!DOCTYPE html>..."
+      "content": "<!DOCTYPE html>\\n<html>\\n<head>\\n<meta charset=\\"UTF-8\\"/>\\n<meta name=\\"viewport\\" content=\\"width=device-width,initial-scale=1.0\\"/>\\n<title>App</title>\\n</head>\\n<body>\\n<div id=\\"root\\"></div>\\n<script type=\\"module\\" src=\\"/src/main.tsx\\"></script>\\n</body>\\n</html>"
     },
     {
-      "path": "styles.css", 
-      "content": "body { ... }"
+      "path": "src/main.tsx",
+      "content": "import React from 'react'\\nimport ReactDOM from 'react-dom/client'\\nimport App from './App'\\nimport './index.css'\\n\\nReactDOM.createRoot(document.getElementById('root')!).render(<App />)"
     },
     {
-      "path": "script.js",
-      "content": "// JavaScript code"
+      "path": "src/App.tsx",
+      "content": "import React from 'react'\\n..."
+    },
+    {
+      "path": "src/index.css",
+      "content": "@tailwind base;\\n@tailwind components;\\n@tailwind utilities;"
+    },
+    {
+      "path": "vite.config.ts",
+      "content": "import { defineConfig } from 'vite'\\nimport react from '@vitejs/plugin-react'\\n\\nexport default defineConfig({\\n  plugins: [react()]\\n})"
+    },
+    {
+      "path": "tailwind.config.js",
+      "content": "export default {\\n  content: ['./index.html','./src/**/*.{js,ts,jsx,tsx}'],\\n  theme: { extend: {} },\\n  plugins: []\\n}"
+    },
+    {
+      "path": "tsconfig.json",
+      "content": "{\\"compilerOptions\\":{\\"target\\":\\"ES2020\\",\\"useDefineForClassFields\\":true,\\"lib\\":[\\"ES2020\\",\\"DOM\\",\\"DOM.Iterable\\"],\\"module\\":\\"ESNext\\",\\"skipLibCheck\\":true,\\"moduleResolution\\":\\"bundler\\",\\"allowImportingTsExtensions\\":true,\\"resolveJsonModule\\":true,\\"isolatedModules\\":true,\\"noEmit\\":true,\\"jsx\\":\\"react-jsx\\",\\"strict\\":true,\\"noUnusedLocals\\":true,\\"noUnusedParameters\\":true,\\"noFallthroughCasesInSwitch\\":true},\\"include\\":[\\"src\\"]}"
     }
   ],
-  "explanation": "Brief explanation of what was built"
-}
-
-2. Always include complete HTML with proper structure
-3. Include all necessary CSS for styling
-4. Add JavaScript if needed for interactivity
-5. Make it beautiful, modern, and responsive
-6. Use semantic HTML5
-7. NO markdown, NO code blocks, ONLY JSON
-8. Ensure all code is complete and functional`
+  "explanation": "Brief description of what was built"
+}`
             }]
           }],
           generationConfig: {
