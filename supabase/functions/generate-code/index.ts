@@ -7,14 +7,14 @@ const corsHeaders = {
 };
 
 Deno.serve(async (req: Request) => {
-  if (req.method === "OPTIONS") {
-    return new Response(null, {
-      status: 200,
-      headers: corsHeaders,
-    });
-  }
-
   try {
+    if (req.method === "OPTIONS") {
+      return new Response(null, {
+        status: 200,
+        headers: corsHeaders,
+      });
+    }
+
     const { prompt } = await req.json();
     console.log('Received prompt:', prompt);
 
@@ -39,7 +39,7 @@ Deno.serve(async (req: Request) => {
 - React 18+ (functional components with hooks)
 - TypeScript (with proper types and interfaces)
 - Vite (as build tool)
-- Tailwind CSS (utility-first styling - use Tailwind classes ONLY)
+- Tailwind CSS v3 (utility-first styling - use Tailwind classes ONLY)
 - Lucide React (for all icons - import from 'lucide-react')
 
 **CODING STANDARDS:**
@@ -51,19 +51,26 @@ Deno.serve(async (req: Request) => {
 6. Make fully responsive layouts with Tailwind breakpoints (sm:, md:, lg:, xl:)
 7. Use Tailwind color utilities (bg-slate-900, text-white, etc.)
 
+**IMPORTANT INSTRUCTIONS:**
+- If the user provides CURRENT PROJECT FILES, analyze them and make TARGETED EDITS to fix issues or add features
+- If the user describes an error, FIX the specific error in the relevant files
+- If the user requests a new feature, ADD it to the existing codebase
+- If no existing files are provided, generate a complete new project
+- ALWAYS return ALL project files (edited AND unedited) in your response
+
 **REQUIRED FILE STRUCTURE:**
 1. package.json - MUST include:
    - "type": "module"
    - Scripts: "dev": "vite", "build": "vite build", "preview": "vite preview"
-   - Dependencies: react, react-dom, lucide-react
-   - DevDependencies: @vitejs/plugin-react, typescript, tailwindcss, autoprefixer, postcss, vite
+   - Dependencies: react@^18.3.1, react-dom@^18.3.1, lucide-react@latest
+   - DevDependencies: @vitejs/plugin-react@latest, typescript@latest, tailwindcss@^3.4.1, autoprefixer@latest, postcss@latest, vite@latest
 2. index.html - Entry point with <div id="root"></div>
 3. src/main.tsx - React entry (ReactDOM.createRoot)
 4. src/App.tsx - Main component
 5. Additional .tsx components as needed
 6. vite.config.ts - Vite configuration
-7. tailwind.config.js - Tailwind configuration
-8. postcss.config.js - PostCSS configuration
+7. tailwind.config.js - Tailwind v3 configuration
+8. postcss.config.cjs - PostCSS configuration (CommonJS format)
 9. tsconfig.json - TypeScript configuration
 
 **USER REQUEST:** "${prompt}"
@@ -74,7 +81,7 @@ Return ONLY valid JSON with NO markdown, NO code blocks:
   "files": [
     {
       "path": "package.json",
-      "content": "{\\"name\\":\\"app\\",\\"type\\":\\"module\\",\\"scripts\\":{\\"dev\\":\\"vite\\",\\"build\\":\\"vite build\\",\\"preview\\":\\"vite preview\\"},\\"dependencies\\":{\\"react\\":\\"^18.3.1\\",\\"react-dom\\":\\"^18.3.1\\",\\"lucide-react\\":\\"latest\\"},\\"devDependencies\\":{\\"@vitejs/plugin-react\\":\\"latest\\",\\"typescript\\":\\"latest\\",\\"tailwindcss\\":\\"latest\\",\\"autoprefixer\\":\\"latest\\",\\"postcss\\":\\"latest\\",\\"vite\\":\\"latest\\"}}"
+      "content": "{\\"name\\":\\"app\\",\\"type\\":\\"module\\",\\"scripts\\":{\\"dev\\":\\"vite\\",\\"build\\":\\"vite build\\",\\"preview\\":\\"vite preview\\"},\\"dependencies\\":{\\"react\\":\\"^18.3.1\\",\\"react-dom\\":\\"^18.3.1\\",\\"lucide-react\\":\\"latest\\"},\\"devDependencies\\":{\\"@vitejs/plugin-react\\":\\"latest\\",\\"typescript\\":\\"latest\\",\\"tailwindcss\\":\\"^3.4.1\\",\\"autoprefixer\\":\\"latest\\",\\"postcss\\":\\"latest\\",\\"vite\\":\\"latest\\"}}"
     },
     {
       "path": "index.html",
@@ -101,8 +108,8 @@ Return ONLY valid JSON with NO markdown, NO code blocks:
       "content": "export default {\\n  content: ['./index.html','./src/**/*.{js,ts,jsx,tsx}'],\\n  theme: { extend: {} },\\n  plugins: []\\n}"
     },
     {
-      "path": "postcss.config.js",
-      "content": "export default {\\n  plugins: {\\n    tailwindcss: {},\\n    autoprefixer: {}\\n  }\\n}"
+      "path": "postcss.config.cjs",
+      "content": "module.exports = {\\n  plugins: {\\n    tailwindcss: {},\\n    autoprefixer: {}\\n  }\\n}"
     },
     {
       "path": "tsconfig.json",
@@ -150,18 +157,24 @@ Return ONLY valid JSON with NO markdown, NO code blocks:
     console.log('Successfully parsed response');
 
     return new Response(JSON.stringify(result), {
+      status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
-
   } catch (error) {
     console.error("Error in generate-code function:", error);
+
+    const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+    const errorDetails = error instanceof Error ? error.stack : String(error);
+
     return new Response(
       JSON.stringify({
-        error: error instanceof Error ? error.message : "Unknown error",
-        details: error instanceof Error ? error.stack : undefined
+        error: errorMessage,
+        details: errorDetails,
+        files: [],
+        explanation: `Error: ${errorMessage}`
       }),
       {
-        status: 500,
+        status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       }
     );

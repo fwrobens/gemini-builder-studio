@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { ChatPanel } from '@/components/ChatPanel';
 import { CodeEditor } from '@/components/CodeEditor';
 import { PreviewPanel } from '@/components/PreviewPanel';
-import { Code, Sparkles, MessageSquare } from 'lucide-react';
+import { Terminal } from '@/components/Terminal';
+import { Code, Sparkles, MessageSquare, Terminal as TerminalIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { WebContainer } from '@webcontainer/api';
 
 interface CodeFile {
   path: string;
@@ -13,10 +15,15 @@ interface CodeFile {
 
 const Index = () => {
   const [files, setFiles] = useState<CodeFile[]>([]);
-  const [activeTab, setActiveTab] = useState<'chat' | 'design'>('chat');
+  const [activeTab, setActiveTab] = useState<'chat' | 'design' | 'terminal'>('chat');
+  const webcontainerRef = useRef<WebContainer | null>(null);
 
   const handleCodeGenerated = (newFiles: CodeFile[]) => {
     setFiles(newFiles);
+  };
+
+  const handleWebContainerReady = (webcontainer: WebContainer) => {
+    webcontainerRef.current = webcontainer;
   };
 
   return (
@@ -74,11 +81,24 @@ const Index = () => {
               <Sparkles className="h-4 w-4" />
               Design
             </button>
+            <button
+              onClick={() => setActiveTab('terminal')}
+              className={`flex items-center gap-2 px-4 py-2 text-sm transition-colors ${
+                activeTab === 'terminal'
+                  ? 'text-foreground border-b-2 border-accent'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <TerminalIcon className="h-4 w-4" />
+              Terminal
+            </button>
           </div>
-          
+
           <div className="flex-1 overflow-hidden">
             {activeTab === 'chat' ? (
-              <ChatPanel onCodeGenerated={handleCodeGenerated} />
+              <ChatPanel onCodeGenerated={handleCodeGenerated} currentFiles={files} />
+            ) : activeTab === 'terminal' ? (
+              <Terminal webcontainer={webcontainerRef.current} />
             ) : (
               <div className="flex items-center justify-center h-full text-sm text-muted-foreground p-4 text-center">
                 Design panel coming soon
@@ -94,7 +114,7 @@ const Index = () => {
 
         {/* Preview Panel - Right */}
         <div className="w-[500px] flex-shrink-0">
-          <PreviewPanel files={files} />
+          <PreviewPanel files={files} onWebContainerReady={handleWebContainerReady} />
         </div>
       </div>
     </div>

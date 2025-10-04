@@ -6,9 +6,10 @@ import { useToast } from '@/hooks/use-toast';
 
 interface PreviewPanelProps {
   files: Array<{ path: string; content: string }>;
+  onWebContainerReady?: (webcontainer: WebContainer) => void;
 }
 
-export const PreviewPanel = ({ files }: PreviewPanelProps) => {
+export const PreviewPanel = ({ files, onWebContainerReady }: PreviewPanelProps) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const webcontainerRef = useRef<WebContainer | null>(null);
   const serverProcessRef = useRef<any>(null);
@@ -23,6 +24,11 @@ export const PreviewPanel = ({ files }: PreviewPanelProps) => {
         const instance = await WebContainer.boot();
         webcontainerRef.current = instance;
         console.log('WebContainer initialized successfully');
+
+        if (onWebContainerReady) {
+          onWebContainerReady(instance);
+        }
+
         setIsLoading(false);
       } catch (error) {
         console.error('Failed to initialize WebContainer:', error);

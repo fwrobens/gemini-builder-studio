@@ -12,13 +12,14 @@ interface Message {
 
 interface ChatPanelProps {
   onCodeGenerated: (files: Array<{ path: string; content: string }>) => void;
+  currentFiles?: Array<{ path: string; content: string }>;
 }
 
-export const ChatPanel = ({ onCodeGenerated }: ChatPanelProps) => {
+export const ChatPanel = ({ onCodeGenerated, currentFiles = [] }: ChatPanelProps) => {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: 'Hi! I\'m your AI web app builder. I\'ll generate React + TypeScript code with Vite, Tailwind CSS, and Lucide icons. Describe what you want to build!'
+      content: 'Hi! I\'m your AI web app builder. I can:\n- Generate new React apps\n- Edit existing files (just describe your changes)\n- Fix errors (paste the error message)\n\nDescribe what you want to build or change!'
     }
   ]);
   const [input, setInput] = useState('');
@@ -40,8 +41,12 @@ export const ChatPanel = ({ onCodeGenerated }: ChatPanelProps) => {
     setIsLoading(true);
 
     try {
+      const contextInfo = currentFiles.length > 0
+        ? `\n\nCURRENT PROJECT FILES:\n${currentFiles.map(f => `${f.path}:\n${f.content}`).join('\n\n---\n\n')}`
+        : '';
+
       const { data, error } = await supabase.functions.invoke('generate-code', {
-        body: { prompt: userMessage }
+        body: { prompt: userMessage + contextInfo }
       });
 
       if (error) throw error;
